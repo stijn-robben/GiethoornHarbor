@@ -1,0 +1,6 @@
+@HarborManagementService_HostAddress = http://localhost:5282
+
+GET {{HarborManagementService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
