@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34616.47
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Billing", "Billing", "{9F4B193F-D6C4-4AA8-BC55-9F596E4D4EEE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Billing", "Billing\Billing.csproj", "{AEEE71C7-681A-4019-80F4-DCAF7C8C9277}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AEEE71C7-681A-4019-80F4-DCAF7C8C9277}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEEE71C7-681A-4019-80F4-DCAF7C8C9277}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEEE71C7-681A-4019-80F4-DCAF7C8C9277}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEEE71C7-681A-4019-80F4-DCAF7C8C9277}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AEEE71C7-681A-4019-80F4-DCAF7C8C9277} = {9F4B193F-D6C4-4AA8-BC55-9F596E4D4EEE}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AC7B28A7-1DBA-4A31-80A5-F87E8F1EF911}
+	EndGlobalSection
+EndGlobal
