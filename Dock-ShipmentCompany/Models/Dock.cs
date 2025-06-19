@@ -9,7 +9,7 @@
         public bool IsRented { get; set; }
         public DateTime? RentalStart { get; set; }
         public DateTime? RentalEnd { get; set; }  // Null = indefinite
-        public ShipmentCompany ShipmentCompany { get; set; }
+        public ShipmentCompany? ShipmentCompany { get; set; }
         public double PricePerDay { get; set; } // Price per day in USD
     }
 }

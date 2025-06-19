@@ -10,8 +10,6 @@
         public required string CardNumber { get; set; }
         public required string CompanyPhone { get; set; }
         public required string CompanyEmail { get; set; }
-
-
-        public ICollection<Dock> Docks { get; set; }
+        public ICollection<Dock>? Docks { get; set; }
     }
 }
