@@ -10,5 +10,6 @@ namespace Billing.Data
 
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<ShippingCompany> shippingCompanies { get; set; }
+        public DbSet<StoredEvent> StoredEvents { get; set; }
     }
 }

@@ -3,10 +3,9 @@
     public class ShippingCompany
     {
         public int Id { get; set; }
-        public string Name { get; set; }
         public string CompanyName { get; set; }
-        public DateTime ArrivalTime { get; set; }
-        public DateTime DepartureTime { get; set; }
-        public bool NeedsService { get; set; }
+        public string ContactEmail { get; set; }
+
+        public string ShipmentCompanyCardNumber { get; set; }
     }
 }
