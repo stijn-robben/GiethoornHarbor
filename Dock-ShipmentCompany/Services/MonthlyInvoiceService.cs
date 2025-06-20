@@ -34,9 +34,12 @@ namespace Dock_ShipmentCompany.Services
                     // Wait until the next scheduled time
                     await Task.Delay(delay, stoppingToken);
 
-                    // Generate invoices for the previous month
-                    var invoiceMonth = now.AddMonths(-1);
-                    await GenerateInvoicesForMonth(invoiceMonth.Year, invoiceMonth.Month);
+                    // FOR TESTING: Generate invoices for the CURRENT month
+                    await GenerateInvoicesForMonth(now.Year, now.Month);
+
+                    // PRODUCTION: Generate invoices for the previous month
+                    // var invoiceMonth = now.AddMonths(-1);
+                    // await GenerateInvoicesForMonth(invoiceMonth.Year, invoiceMonth.Month);
                 }
                 catch (Exception ex)
                 {
@@ -49,8 +52,8 @@ namespace Dock_ShipmentCompany.Services
 
         private DateTime GetNextInvoiceDate(DateTime now)
         {
-            // FOR TESTING: Change this to run every 2 minutes
-             return now.AddMinutes(2);
+            // FOR TESTING: Change this to run every 30 seconds
+            return now.AddSeconds(30);
 
             // PRODUCTION: Run on the 1st of each month at 02:00 UTC
             //var nextMonth = now.AddMonths(1);
@@ -97,85 +100,121 @@ namespace Dock_ShipmentCompany.Services
 
         private async Task GenerateInvoicesForMonth(int year, int month)
         {
-            using var scope = _serviceProvider.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<PortDbContext>();
-            var publisher = new EventPublisher();
-
-            var invoiceStart = new DateTime(year, month, 1);
-            var invoiceEnd = invoiceStart.AddMonths(1).AddDays(-1);
-            var invoiceKey = $"{year:0000}-{month:00}";
-
-            _logger.LogInformation($"Generating invoices for {invoiceKey}");
-
-            // Get all docks that were rented during this month
-            var relevantDocks = await context.Docks
-                .Include(d => d.ShipmentCompany)
-                .Where(d => d.IsRented &&
-                           d.RentalStart.HasValue &&
-                           d.RentalStart <= invoiceEnd &&
-                           (d.RentalEnd == null || d.RentalEnd >= invoiceStart))
-                .ToListAsync();
-
-            foreach (var dock in relevantDocks)
+            try
             {
-                // Check if invoice already exists for this dock and month
-                var existingInvoice = await context.Invoices
-                    .FirstOrDefaultAsync(i => i.DockId == dock.Id && i.InvoiceMonth == invoiceKey);
+                using var scope = _serviceProvider.CreateScope();
+                var context = scope.ServiceProvider.GetRequiredService<PortDbContext>();
 
-                if (existingInvoice != null)
+                // Create one publisher instance for all invoices in this batch
+                using var publisher = new EventPublisher();
+
+                var invoiceStart = new DateTime(year, month, 1);
+                var invoiceEnd = invoiceStart.AddMonths(1).AddDays(-1);
+                var invoiceKey = $"{year:0000}-{month:00}";
+
+                _logger.LogInformation($"Generating invoices for {invoiceKey}");
+
+                // Get all docks that were rented during this month
+                var relevantDocks = await context.Docks
+                    .Include(d => d.ShipmentCompany)
+                    .Where(d => d.IsRented &&
+                               d.RentalStart.HasValue &&
+                               d.RentalStart <= invoiceEnd &&
+                               (d.RentalEnd == null || d.RentalEnd >= invoiceStart))
+                    .ToListAsync();
+
+                _logger.LogInformation($"Found {relevantDocks.Count} relevant docks for {invoiceKey}");
+
+                foreach (var dock in relevantDocks)
                 {
-                    _logger.LogDebug($"Invoice already exists for dock {dock.Name} in {invoiceKey}");
-                    continue;
+                    _logger.LogInformation($"Processing dock {dock.Name} for company {dock.ShipmentCompany?.CompanyName}");
+
+                    // Check if ShipmentCompany is null
+                    if (dock.ShipmentCompany == null)
+                    {
+                        _logger.LogWarning($"Dock {dock.Name} has no associated shipment company, skipping invoice generation");
+                        continue;
+                    }
+
+                    // Check if invoice already exists for this dock and month
+                    var existingInvoice = await context.Invoices
+                        .FirstOrDefaultAsync(i => i.DockId == dock.Id && i.InvoiceMonth == invoiceKey);
+
+                    if (existingInvoice != null)
+                    {
+                        _logger.LogDebug($"Invoice already exists for dock {dock.Name} in {invoiceKey}");
+                        continue;
+                    }
+
+                    // Calculate actual rental period for this month
+                    var actualStart = dock.RentalStart.Value > invoiceStart ? dock.RentalStart.Value : invoiceStart;
+                    var actualEnd = dock.RentalEnd.HasValue && dock.RentalEnd.Value < invoiceEnd
+                        ? dock.RentalEnd.Value
+                        : invoiceEnd;
+
+                    var daysRented = (actualEnd - actualStart).Days + 1;
+                    var amount = Math.Round(daysRented * dock.PricePerDay, 2);
+
+                    // Create invoice record in database
+                    var invoice = new Invoice
+                    {
+                        DockId = dock.Id,
+                        ShipmentCompanyId = dock.ShipmentCompany.Id,
+                        InvoiceMonth = invoiceKey,
+                        RentalStart = actualStart,
+                        RentalEnd = actualEnd,
+                        DaysRented = daysRented,
+                        PricePerDay = dock.PricePerDay,
+                        Amount = (decimal)amount,
+                        GeneratedAt = DateTime.UtcNow,
+                        IsPaid = false
+                    };
+
+                    context.Invoices.Add(invoice);
+                    await context.SaveChangesAsync();
+
+                    _logger.LogInformation($"Saved invoice to database with ID: {invoice.Id}");
+
+                    // Publish invoice via RabbitMQ
+                    var invoiceEvent = new
+                    {
+                        EventType = "MonthlyDockInvoice",
+                        InvoiceId = invoice.Id,
+                        ShipmentCompany = dock.ShipmentCompany.CompanyName,
+                        ShipmentCompanyEmail = dock.ShipmentCompany.CompanyEmail,
+                        ShipmentCompanyPhone = dock.ShipmentCompany.CompanyPhone,
+                        ShipmentCompanyCardNumber = dock.ShipmentCompany.CardNumber,
+                        RentalStart = actualStart,
+                        RentalEnd = actualEnd,
+                        Amount = amount,
+                        DockName = dock.Name,
+                        PricePerDay = dock.PricePerDay,
+                        DaysRented = daysRented,
+                        InvoiceMonth = invoiceKey,
+                        GeneratedAt = DateTime.UtcNow
+                    };
+
+                    try
+                    {
+                        publisher.Publish(invoiceEvent);
+                        _logger.LogInformation($"Successfully published invoice event to RabbitMQ for invoice {invoice.Id}");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"Failed to publish invoice event to RabbitMQ for invoice {invoice.Id}");
+                    }
+                    _logger.LogInformation($"Generated invoice for {dock.ShipmentCompany.CompanyName} - Dock {dock.Name} ({invoiceKey}): ${amount:F2}");
                 }
 
-                // Calculate actual rental period for this month
-                var actualStart = dock.RentalStart.Value > invoiceStart ? dock.RentalStart.Value : invoiceStart;
-                var actualEnd = dock.RentalEnd.HasValue && dock.RentalEnd.Value < invoiceEnd
-                    ? dock.RentalEnd.Value
-                    : invoiceEnd;
-
-                var daysRented = (actualEnd - actualStart).Days + 1;
-                var amount = Math.Round(daysRented * dock.PricePerDay, 2);
-
-                // Create invoice record in database
-                var invoice = new Invoice
+                if (relevantDocks.Count == 0)
                 {
-                    DockId = dock.Id,
-                    ShipmentCompanyId = dock.ShipmentCompany.Id,
-                    InvoiceMonth = invoiceKey,
-                    RentalStart = actualStart,
-                    RentalEnd = actualEnd,
-                    DaysRented = daysRented,
-                    PricePerDay = dock.PricePerDay,
-                    Amount = (decimal)amount,
-                    GeneratedAt = DateTime.UtcNow,
-                    IsPaid = false
-                };
-
-                context.Invoices.Add(invoice);
-                await context.SaveChangesAsync();
-
-                // Publish invoice via RabbitMQ
-                var invoiceEvent = new
-                {
-                    EventType = "MonthlyDockInvoice",
-                    InvoiceId = invoice.Id,
-                    ShipmentCompany = dock.ShipmentCompany.CompanyName,
-                    ShipmentCompanyEmail = dock.ShipmentCompany.CompanyEmail,
-                    ShipmentCompanyPhone = dock.ShipmentCompany.CompanyPhone,
-                    ShipmentCompanyCardNumber = dock.ShipmentCompany.CardNumber,
-                    RentalStart = actualStart,
-                    RentalEnd = actualEnd,
-                    Amount = amount,
-                    DockName = dock.Name,
-                    PricePerDay = dock.PricePerDay,
-                    DaysRented = daysRented,
-                    InvoiceMonth = invoiceKey,
-                    GeneratedAt = DateTime.UtcNow
-                };
-
-                publisher.Publish(invoiceEvent);
-                _logger.LogInformation($"Generated invoice for {dock.ShipmentCompany.CompanyName} - Dock {dock.Name} ({invoiceKey}): ${amount:F2}");
+                    _logger.LogInformation($"No docks found for invoice generation in {invoiceKey}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error generating invoices for {year}-{month:00}");
+                throw;
             }
         }
     }
