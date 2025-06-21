@@ -14,7 +14,6 @@
         public double PricePerDay { get; set; }
         public decimal Amount { get; set; }
         public DateTime GeneratedAt { get; set; }
-        public bool IsPaid { get; set; } = false;
     }
 
 }

@@ -4,6 +4,7 @@ using Dock_ShipmentCompany.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Dock_ShipmentCompany.Migrations
 {
     [DbContext(typeof(PortDbContext))]
-    partial class PortDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250621080518_RemoveIsPaidFromInvoice")]
+    partial class RemoveIsPaidFromInvoice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
