@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  harbor-management:
+    build:
+      context: .
+      dockerfile: HarborManagementService/Dockerfile
+    ports:
+      - "5282:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=harbordb;Database=HarborDb;User=sa;Password=Your_password123;TrustServerCertificate=True;
+      - RabbitMQ__HostName=rabbitmq
+    depends_on:
+      - harbordb
+      - rabbitmq
+
+  water-management:
+    build:
+      context: .
+      dockerfile: WaterManagement/Dockerfile
+    ports:
+      - "5171:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=waterdb;Database=WaterDb;User=sa;Password=Your_password123;TrustServerCertificate=True;
+      - RabbitMQ__HostName=rabbitmq
+    depends_on:
+      - waterdb
+      - rabbitmq
+
+  billing:
+    build:
+      context: .
+      dockerfile: Billing/Billing/Dockerfile
+    ports:
+      - "5206:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=billingdb;Database=BillingDb;User=sa;Password=Your_password123;TrustServerCertificate=True;
+      - RabbitMQ__HostName=rabbitmq
+    depends_on:
+      - billingdb
+      - rabbitmq
+
+  harbordb:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: "Your_password123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1434:1433"
+
+  waterdb:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: "Your_password123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1435:1433"
+
+  billingdb:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: "Your_password123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1436:1433"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"

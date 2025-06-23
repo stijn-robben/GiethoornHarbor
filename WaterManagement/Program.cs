@@ -34,4 +34,10 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<WaterQualityDbContext>();
+    db.Database.EnsureCreated(); // Of db.Database.Migrate() als je migrations gebruikt
+}
+
 app.Run();

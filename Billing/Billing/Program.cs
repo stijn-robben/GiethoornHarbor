@@ -31,4 +31,10 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<BillingContext>();
+    db.Database.EnsureCreated();
+}
+
 app.Run();
