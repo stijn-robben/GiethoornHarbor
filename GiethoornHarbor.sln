@@ -10,7 +10,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HarborManagementService", "HarborManagementService\HarborManagementService.csproj", "{F1F6A34D-FBC1-43EE-9201-7895DDC50AB3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Billing", "Billing\Billing\Billing.csproj", "{6671EF8E-CC30-46B5-86F4-2B416023014B}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaterManagement", "WaterManagement\WaterManagement.csproj", "{F9566320-DE4C-48B7-B7D6-F54159032541}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Billing", "Billing", "{E1DDB4DB-2C70-4E90-BECF-B0EE14320BED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,7 +39,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F1F6A34D-FBC1-43EE-9201-7895DDC50AB3} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
-		{6671EF8E-CC30-46B5-86F4-2B416023014B} = {9F4B193F-D6C4-4AA8-BC55-9F596E4D4EEE}
+		{6671EF8E-CC30-46B5-86F4-2B416023014B} = {E1DDB4DB-2C70-4E90-BECF-B0EE14320BED}
 		{F9566320-DE4C-48B7-B7D6-F54159032541} = {21505ED0-ED80-4F41-BF8A-F920BF0B36FB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
