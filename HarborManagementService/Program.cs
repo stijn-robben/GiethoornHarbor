@@ -42,7 +42,25 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<HarborContext>();
-    db.Database.EnsureCreated();
+
+    int retries = 0;
+    while (true)
+    {
+        try
+        {
+            db.Database.EnsureCreated();
+            break;
+        }
+        catch (Exception ex)
+        {
+            retries++;
+            if (retries >= 5)
+                throw new Exception("Failed to connect to SQL Server after 5 attempts", ex);
+
+            Console.WriteLine($"[Startup] SQL Server not ready yet. Retrying... ({retries}/5)");
+            Thread.Sleep(2000);
+        }
+    }
 }
 
 app.Run();
