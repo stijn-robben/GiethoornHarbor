@@ -45,7 +45,7 @@ services:
       rabbitmq:
         condition: service_healthy
       billingdb:
-        condition: service_started
+        condition: service_healthy
 
   harbordb:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -55,10 +55,11 @@ services:
     ports:
       - "1434:1433"
     healthcheck:
-      test: [ "CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Your_password123!' -Q 'SELECT 1'" ]
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/1433'"]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 15
+      start_period: 30s
 
   waterdb:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -68,10 +69,11 @@ services:
     ports:
       - "1435:1433"
     healthcheck:
-      test: [ "CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Your_password123!' -Q 'SELECT 1'" ]
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/1433'"]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 15
+      start_period: 30s
 
   billingdb:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -81,10 +83,11 @@ services:
     ports:
       - "1436:1433"
     healthcheck:
-      test: [ "CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Your_password123!' -Q 'SELECT 1'" ]
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/1433'"]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 15
+      start_period: 30s
 
   rabbitmq:
     image: rabbitmq:3-management
