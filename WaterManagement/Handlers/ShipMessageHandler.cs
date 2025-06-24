@@ -1,27 +1,64 @@
-﻿using WaterManagement.Dto;
-using WaterManagement.Services;
+﻿using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace WaterManagement.Handlers
 {
-    public class ShipMessageHandler
+    public class ShipMessageHandler : BackgroundService
     {
-        private readonly WaterQualityService _waterQualityService;
+        private readonly ILogger<ShipMessageHandler> _logger;
+        private IConnection _connection;
+        private IModel _channel;
 
-        public ShipMessageHandler(WaterQualityService waterQualityService)
+        public ShipMessageHandler(ILogger<ShipMessageHandler> logger)
         {
-            _waterQualityService = waterQualityService;
+            _logger = logger;
         }
 
-        // Deze method call je wanneer je een "ship arrived" message krijgt van de bus
-        public async Task HandleShipArrived(ShipArrivedMessage message)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await _waterQualityService.HandleShipArrivedAsync();
+            var factory = new ConnectionFactory() { HostName = "rabbitmq" };
+            _connection = factory.CreateConnection();
+            _channel = _connection.CreateModel();
+
+            string exchangeName = "harbor-events";
+            string queueName = "water-queue";
+
+            _channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Fanout, durable: false);
+            _channel.QueueDeclare(queue: queueName, durable: false, exclusive: false, autoDelete: false);
+            _channel.QueueBind(queue: queueName, exchange: exchangeName, routingKey: "");
+
+            _logger.LogInformation("ShipMessageHandler luistert naar RabbitMQ.");
+            Console.WriteLine("ShipMessageHandler luistert naar RabbitMQ.");
+
+            var consumer = new EventingBasicConsumer(_channel);
+            consumer.Received += (model, ea) =>
+            {
+                var body = ea.Body.ToArray();
+                var message = Encoding.UTF8.GetString(body);
+                _logger.LogInformation("Ontvangen event: {message}", message);
+                Console.WriteLine($"Ontvangen event: {message}");
+            };
+
+            _channel.BasicConsume(queue: queueName, autoAck: true, consumer: consumer);
+
+            // Wacht tot service wordt gestopt
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                await Task.Delay(1000, stoppingToken);
+            }
         }
 
-        // Deze method call je wanneer je een "ship departed" message krijgt van de bus
-        public async Task HandleShipDeparted(ShipDepartedMessage message)
+        public override Task StopAsync(CancellationToken cancellationToken)
         {
-            await _waterQualityService.HandleShipDepartedAsync();
+            _logger.LogInformation("ShipMessageHandler wordt gestopt.");
+            _channel?.Close();
+            _connection?.Close();
+            return base.StopAsync(cancellationToken);
         }
     }
 }

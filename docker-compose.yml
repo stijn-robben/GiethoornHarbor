@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   harbor-management:
     build:
@@ -9,7 +7,7 @@ services:
       - "5282:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=harbordb;Database=HarborDb;User=sa;Password=Your_password123;TrustServerCertificate=True;
+      - ConnectionStrings__DefaultConnection=Server=harbordb;Database=HarborDb;User=sa;Password=Your_password123!;TrustServerCertificate=True;
       - RabbitMQ__HostName=rabbitmq
     depends_on:
       - harbordb
@@ -23,7 +21,7 @@ services:
       - "5171:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=waterdb;Database=WaterDb;User=sa;Password=Your_password123;TrustServerCertificate=True;
+      - ConnectionStrings__DefaultConnection=Server=waterdb;Database=WaterDb;User=sa;Password=Your_password123!;TrustServerCertificate=True;
       - RabbitMQ__HostName=rabbitmq
     depends_on:
       - waterdb
@@ -37,16 +35,18 @@ services:
       - "5206:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=billingdb;Database=BillingDb;User=sa;Password=Your_password123;TrustServerCertificate=True;
+      - ConnectionStrings__DefaultConnection=Server=billingdb;Database=BillingDb;User=sa;Password=Your_password123!;TrustServerCertificate=True;
       - RabbitMQ__HostName=rabbitmq
     depends_on:
-      - billingdb
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+      billingdb:
+        condition: service_started
 
   harbordb:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
-      SA_PASSWORD: "Your_password123"
+      SA_PASSWORD: "Your_password123!"
       ACCEPT_EULA: "Y"
     ports:
       - "1434:1433"
@@ -54,7 +54,7 @@ services:
   waterdb:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
-      SA_PASSWORD: "Your_password123"
+      SA_PASSWORD: "Your_password123!"
       ACCEPT_EULA: "Y"
     ports:
       - "1435:1433"
@@ -62,7 +62,7 @@ services:
   billingdb:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
-      SA_PASSWORD: "Your_password123"
+      SA_PASSWORD: "Your_password123!"
       ACCEPT_EULA: "Y"
     ports:
       - "1436:1433"
@@ -72,3 +72,8 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

@@ -4,6 +4,7 @@ using WaterManagement.Handlers;
 using WaterManagement.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddHostedService<ShipMessageHandler>();
 
 // Add services to the container.
 

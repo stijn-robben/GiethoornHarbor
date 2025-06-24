@@ -41,18 +41,5 @@ namespace WaterManagement.Controllers
 
             return Ok(history);
         }
-        [HttpPost("simulate/arrived")]
-        public async Task<IActionResult> SimulateShipArrived([FromServices] ShipMessageHandler handler)
-        {
-            await handler.HandleShipArrived(new ShipArrivedMessage());
-            return Ok();
-        }
-
-        [HttpPost("simulate/departed")]
-        public async Task<IActionResult> SimulateShipDeparted([FromServices] ShipMessageHandler handler)
-        {
-            await handler.HandleShipDeparted(new ShipDepartedMessage());
-            return Ok();
-        }
     }
 }

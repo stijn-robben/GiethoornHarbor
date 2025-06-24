@@ -10,7 +10,7 @@ namespace HarborManagementService.Messaging
 
         public EventPublisher()
         {
-            var factory = new ConnectionFactory() { HostName = "localhost" };
+            var factory = new ConnectionFactory() { HostName = "rabbitmq" };
             var connection = factory.CreateConnection();
             _channel = connection.CreateModel();
 

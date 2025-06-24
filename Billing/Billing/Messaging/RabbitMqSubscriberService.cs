@@ -17,7 +17,25 @@ public class RabbitMqSubscriberService : BackgroundService
     public RabbitMqSubscriberService(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
-        var factory = new ConnectionFactory() { HostName = "localhost" };
+        var factory = new ConnectionFactory() { HostName = "rabbitmq" };
+        int retries = 0;
+        while (true)
+        {
+            try
+            {
+                _connection = factory.CreateConnection();
+                break;
+            }
+            catch (Exception ex)
+            {
+                retries++;
+                if (retries >= 5)
+                    throw new Exception("Failed to connect to RabbitMQ after 5 attempts", ex);
+
+                Console.WriteLine($"[RabbitMQ] Connection failed. Retrying ({retries}/5)...");
+                Thread.Sleep(2000);
+            }
+        }
         _connection = factory.CreateConnection();
         _channel = _connection.CreateModel();
         _channel.ExchangeDeclare("harbor-events", ExchangeType.Fanout);
