@@ -1,4 +1,5 @@
  using Dock_ShipmentCompany.Database;
+using Dock_ShipmentCompany.Messaging;
 using Dock_ShipmentCompany.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,7 @@ builder.Services.AddDbContext<PortDbContext>(options =>
 
 // Register the monthly invoice background service
 builder.Services.AddHostedService<MonthlyInvoiceService>();
+builder.Services.AddSingleton<EventPublisher>();
 
 var app = builder.Build();
 
