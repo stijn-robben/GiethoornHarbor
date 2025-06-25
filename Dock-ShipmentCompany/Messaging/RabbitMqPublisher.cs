@@ -16,10 +16,7 @@ namespace Dock_ShipmentCompany.Messaging
             {
                 var factory = new ConnectionFactory()
                 {
-                    HostName = "localhost",   // If RabbitMQ is in Docker on the same machine
-                    Port = 5672,
-                    UserName = "guest",
-                    Password = "guest"
+                    HostName = "rabbitmq"
                 };
 
                 _connection = factory.CreateConnection();
