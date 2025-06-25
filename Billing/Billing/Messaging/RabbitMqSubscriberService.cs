@@ -38,9 +38,9 @@ public class RabbitMqSubscriberService : BackgroundService
         }
         _connection = factory.CreateConnection();
         _channel = _connection.CreateModel();
-        _channel.ExchangeDeclare("harbor-events", ExchangeType.Fanout);
+        _channel.ExchangeDeclare("dock-events", ExchangeType.Fanout);
         _channel.QueueDeclare("billing-queue", durable: false, exclusive: false, autoDelete: false, arguments: null);
-        _channel.QueueBind("billing-queue", "harbor-events", "");
+        _channel.QueueBind("billing-queue", "dock-events", "");
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -62,6 +62,7 @@ public class RabbitMqSubscriberService : BackgroundService
 
                 if (eventType == "MonthlyDockInvoice")
                 {
+                    Console.WriteLine($"Received MonthlyDockInvoice event: {message}");
                     var companyName = root.GetProperty("ShipmentCompany").GetString();
                     var amount = root.GetProperty("Amount").GetDecimal();
                     var requestedAt = root.GetProperty("GeneratedAt").GetDateTime();
@@ -74,11 +75,12 @@ public class RabbitMqSubscriberService : BackgroundService
                         RequestedAt = requestedAt
                     });
                 }
-                else if (eventType == "ShippingCompanyCreated")
+                else if (eventType == "ShipmentCompanyCreated")
                 {
+                    Console.WriteLine($"Received ShipmentCompanyCreated event: {message}");
                     var companyName = root.GetProperty("CompanyName").GetString();
-                    var contactEmail = root.GetProperty("ContactEmail").GetString();
-                    var shipmentCompanyCardNumber = root.GetProperty("ShipmentCompanyCardNumber").GetString();
+                    var contactEmail = root.GetProperty("CompanyEmail").GetString();
+                    var shipmentCompanyCardNumber = root.GetProperty("CardNumber").GetString();
 
                     if (!context.shippingCompanies.Any(sc => sc.CompanyName == companyName))
                     {
