@@ -11,68 +11,83 @@ public class RabbitMqSubscriberService : BackgroundService
     private readonly IServiceProvider _serviceProvider;
     private IConnection _connection;
     private IModel _channel;
-    private readonly ExecuteShipService _executeShipService;
 
-    public RabbitMqSubscriberService(IServiceProvider serviceProvider, ExecuteShipService executeShipService)
+    public RabbitMqSubscriberService(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
-        _executeShipService = executeShipService;
-        var factory = new ConnectionFactory() { HostName = "rabbitmq" };
+        var factory = new ConnectionFactory { HostName = "rabbitmq" };
         int retries = 0;
         while (true)
         {
             try
             {
                 _connection = factory.CreateConnection();
-                break;
+                _channel = _connection.CreateModel();
+                break; // verbinding gelukt
             }
             catch (Exception ex)
             {
                 retries++;
-                if (retries >= 5)
-                    throw new Exception("Failed to connect to RabbitMQ after 5 attempts", ex);
+                if (retries >= 10)
+                    throw new Exception("Kon geen verbinding maken met RabbitMQ", ex);
 
-                Console.WriteLine($"[RabbitMQ] Connection failed. Retrying ({retries}/5)...");
-                Thread.Sleep(2000);
+                Console.WriteLine($"[RabbitMQ] Verbinden mislukt. Opnieuw proberen ({retries}/10)...");
+                Thread.Sleep(3000); // 3 seconden wachten
             }
         }
-        _connection = factory.CreateConnection();
-        _channel = _connection.CreateModel();
         _channel.ExchangeDeclare("harbor-events", ExchangeType.Fanout);
-        _channel.QueueDeclare("shipservice-queue", durable: false, exclusive: false, autoDelete: false, arguments: null);
+        _channel.QueueDeclare("shipservice-queue", durable: false, exclusive: false, autoDelete: false);
         _channel.QueueBind("shipservice-queue", "harbor-events", "");
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var consumer = new EventingBasicConsumer(_channel);
+
         consumer.Received += (model, ea) =>
         {
             var body = ea.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
 
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                //var context = scope.ServiceProvider.GetRequiredService<BillingContext>();
+            Console.WriteLine("[RabbitMQ] Event ontvangen:");
+            Console.WriteLine(message);
 
-                // Try to detect event type
+            try
+            {
+                using var scope = _serviceProvider.CreateScope();
+                var executeShipService = scope.ServiceProvider.GetRequiredService<ExecuteShipService>();
+
                 using var doc = JsonDocument.Parse(message);
                 var root = doc.RootElement;
+
                 var eventType = root.GetProperty("EventType").GetString();
+                Console.WriteLine($"EventType: {eventType}");
 
                 if (eventType == "ShipArrived")
                 {
-                    Console.WriteLine($"Ship arrived event received {message}");
-                    var shippingCompanyName = root.GetProperty("Company").GetString();
+                    var company = root.GetProperty("Company").GetString();
                     var needsService = root.GetProperty("NeedsService").GetBoolean();
 
-                    // TODO Process the event service
-                    _executeShipService.Execute(shippingCompanyName, needsService);
+                    Console.WriteLine($"ShipArrived ontvangen van bedrijf: {company}, needsService: {needsService}");
+
+                    executeShipService.Execute(company!, needsService);
+                    Console.WriteLine("ExecuteShipService succesvol uitgevoerd");
                 }
+                else
+                {
+                    Console.WriteLine($"Onbekend eventtype: {eventType}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Fout bij verwerken event: {ex.Message}");
             }
         };
 
         _channel.BasicConsume("shipservice-queue", autoAck: true, consumer: consumer);
+
+        Console.WriteLine("[RabbitMQ] Wachten op berichten op 'shipservice-queue'...");
+
         return Task.CompletedTask;
     }
 

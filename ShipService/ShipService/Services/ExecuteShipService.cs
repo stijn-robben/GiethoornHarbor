@@ -19,15 +19,9 @@ namespace ShipService.Services
         {
             Console.WriteLine("Executing Ship Service...");
 
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                var executeShipService = scope.ServiceProvider.GetRequiredService<ExecuteShipService>();
-                // Use executeShipService here
-                executeShipService.Execute(shippingCompanyName, needsService);
-            }
+            _amount += needsService ? 100 : 50;
 
-            // TODO Send bill
-            PublishInvoiceEvent(shippingCompanyName, _amount, new DateTime());
+            PublishInvoiceEvent(shippingCompanyName, _amount, DateTime.UtcNow);
         }
 
         private void PublishInvoiceEvent(string shippingCompanyName, int amount, DateTime generatedAt)

@@ -12,22 +12,25 @@ namespace ShipService.Messaging
 
         public RabbitMqPublisher()
         {
-            try
+            var factory = new ConnectionFactory { HostName = "rabbitmq" };
+            int retries = 0;
+            while (true)
             {
-                var factory = new ConnectionFactory()
+                try
                 {
-                    HostName = "rabbitmq"
-                };
+                    _connection = factory.CreateConnection();
+                    _channel = _connection.CreateModel();
+                    break; 
+                }
+                catch (Exception ex)
+                {
+                    retries++;
+                    if (retries >= 10)
+                        throw new Exception("Kon geen verbinding maken met RabbitMQ", ex);
 
-                _connection = factory.CreateConnection();
-                _channel = _connection.CreateModel();
-
-                _channel.ExchangeDeclare(exchange: "shipservice-events", type: ExchangeType.Fanout);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to connect to RabbitMQ: {ex.Message}");
-                throw;
+                    Console.WriteLine($"[RabbitMQ] Verbinden mislukt. Opnieuw proberen ({retries}/10)...");
+                    Thread.Sleep(3000); 
+                }
             }
         }
 
