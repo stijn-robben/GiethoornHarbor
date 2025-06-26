@@ -23,6 +23,8 @@ public class RabbitMqSubscriberService : BackgroundService
             {
                 _connection = factory.CreateConnection();
                 _channel = _connection.CreateModel();
+                _channel.ExchangeDeclare(exchange: "shipservice-events", type: ExchangeType.Fanout, durable: false, autoDelete: false);
+
                 break; // verbinding gelukt
             }
             catch (Exception ex)
