@@ -1,0 +1,502 @@
+[
+  {
+    "Id": 1,
+    "Name": "A1",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 85.0
+  },
+  {
+    "Id": 2,
+    "Name": "A2",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 85.0
+  },
+  {
+    "Id": 3,
+    "Name": "A3",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 85.0
+  },
+  {
+    "Id": 4,
+    "Name": "A4",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 85.0
+  },
+  {
+    "Id": 5,
+    "Name": "A5",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 85.0
+  },
+  {
+    "Id": 6,
+    "Name": "A6",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 85.0
+  },
+  {
+    "Id": 7,
+    "Name": "B1",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 95.0
+  },
+  {
+    "Id": 8,
+    "Name": "B2",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 95.0
+  },
+  {
+    "Id": 9,
+    "Name": "B3",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 95.0
+  },
+  {
+    "Id": 10,
+    "Name": "B4",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 95.0
+  },
+  {
+    "Id": 11,
+    "Name": "B5",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 95.0
+  },
+  {
+    "Id": 12,
+    "Name": "B6",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 95.0
+  },
+  {
+    "Id": 13,
+    "Name": "B7",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 95.0
+  },
+  {
+    "Id": 14,
+    "Name": "B8",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 95.0
+  },
+  {
+    "Id": 15,
+    "Name": "C1",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 120.0
+  },
+  {
+    "Id": 16,
+    "Name": "C2",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 120.0
+  },
+  {
+    "Id": 17,
+    "Name": "C3",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 120.0
+  },
+  {
+    "Id": 18,
+    "Name": "C4",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 120.0
+  },
+  {
+    "Id": 19,
+    "Name": "C5",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 120.0
+  },
+  {
+    "Id": 20,
+    "Name": "C6",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 120.0
+  },
+  {
+    "Id": 21,
+    "Name": "D1",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 150.0
+  },
+  {
+    "Id": 22,
+    "Name": "D2",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 150.0
+  },
+  {
+    "Id": 23,
+    "Name": "D3",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 150.0
+  },
+  {
+    "Id": 24,
+    "Name": "D4",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 150.0
+  },
+  {
+    "Id": 25,
+    "Name": "D5",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 150.0
+  },
+  {
+    "Id": 26,
+    "Name": "E1",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 200.0
+  },
+  {
+    "Id": 27,
+    "Name": "E2",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 200.0
+  },
+  {
+    "Id": 28,
+    "Name": "E3",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 200.0
+  },
+  {
+    "Id": 29,
+    "Name": "E4",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 200.0
+  },
+  {
+    "Id": 30,
+    "Name": "F1",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 175.0
+  },
+  {
+    "Id": 31,
+    "Name": "F2",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 175.0
+  },
+  {
+    "Id": 32,
+    "Name": "F3",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 175.0
+  },
+  {
+    "Id": 33,
+    "Name": "F4",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 175.0
+  },
+  {
+    "Id": 34,
+    "Name": "G1",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 130.0
+  },
+  {
+    "Id": 35,
+    "Name": "G2",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 130.0
+  },
+  {
+    "Id": 36,
+    "Name": "G3",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 130.0
+  },
+  {
+    "Id": 37,
+    "Name": "G4",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 130.0
+  },
+  {
+    "Id": 38,
+    "Name": "G5",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 130.0
+  },
+  {
+    "Id": 39,
+    "Name": "H1",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 165.0
+  },
+  {
+    "Id": 40,
+    "Name": "H2",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 165.0
+  },
+  {
+    "Id": 41,
+    "Name": "H3",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 165.0
+  },
+  {
+    "Id": 42,
+    "Name": "I1",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 110.0
+  },
+  {
+    "Id": 43,
+    "Name": "I2",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 110.0
+  },
+  {
+    "Id": 44,
+    "Name": "I3",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 110.0
+  },
+  {
+    "Id": 45,
+    "Name": "I4",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 110.0
+  },
+  {
+    "Id": 46,
+    "Name": "J1",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 140.0
+  },
+  {
+    "Id": 47,
+    "Name": "J2",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 140.0
+  },
+  {
+    "Id": 48,
+    "Name": "J3",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 140.0
+  },
+  {
+    "Id": 49,
+    "Name": "K1",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 180.0
+  },
+  {
+    "Id": 50,
+    "Name": "K2",
+    "IsOccupied": false,
+    "IsRented": false,
+    "RentalStart": null,
+    "RentalEnd": null,
+    "ShipmentCompany": null,
+    "PricePerDay": 180.0
+  }
+]

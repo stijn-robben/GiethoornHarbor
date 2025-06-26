@@ -1,4 +1,4 @@
- using Dock_ShipmentCompany.Database;
+using Dock_ShipmentCompany.Database;
 using Dock_ShipmentCompany.Messaging;
 using Dock_ShipmentCompany.Services;
 using Microsoft.EntityFrameworkCore;
@@ -19,9 +19,16 @@ builder.Services.AddControllers()
 builder.Services.AddDbContext<PortDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Register the monthly invoice background service
+// Register HTTP client factory
+builder.Services.AddHttpClient();
+
+// Register background services
 builder.Services.AddHostedService<MonthlyInvoiceService>();
+builder.Services.AddHostedService<CompanySyncService>();
+
+// Register other services
 builder.Services.AddSingleton<EventPublisher>();
+builder.Services.AddScoped<DatabaseSeeder>();
 
 var app = builder.Build();
 
@@ -41,7 +48,13 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<PortDbContext>();
+    var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+
+    // Ensure database is created
     db.Database.EnsureCreated();
+
+    // Seed the database
+    await seeder.SeedAsync();
 }
 
 app.Run();
