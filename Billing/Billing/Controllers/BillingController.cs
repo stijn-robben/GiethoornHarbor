@@ -33,5 +33,12 @@ namespace Billing.Controllers
             var invoices = handler.Handle();
             return Ok(invoices);
         }
+
+        [HttpGet("companies")]
+        public ActionResult<IEnumerable<ShippingCompany>> GetAllCompanies()
+        {
+            var companies = _context.shippingCompanies.ToList();
+            return Ok(companies);
+        }
     }
 }

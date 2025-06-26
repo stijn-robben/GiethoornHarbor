@@ -78,9 +78,10 @@ public class RabbitMqSubscriberService : BackgroundService
                 else if (eventType == "ShipmentCompanyCreated")
                 {
                     Console.WriteLine($"Received ShipmentCompanyCreated event: {message}");
-                    var companyName = root.GetProperty("CompanyName").GetString();
-                    var contactEmail = root.GetProperty("CompanyEmail").GetString();
-                    var shipmentCompanyCardNumber = root.GetProperty("CardNumber").GetString();
+                    var data = root.GetProperty("Data");
+                    var companyName = data.GetProperty("CompanyName").GetString();
+                    var contactEmail = data.GetProperty("CompanyEmail").GetString();
+                    var shipmentCompanyCardNumber = data.GetProperty("CardNumber").GetString();
 
                     if (!context.shippingCompanies.Any(sc => sc.CompanyName == companyName))
                     {

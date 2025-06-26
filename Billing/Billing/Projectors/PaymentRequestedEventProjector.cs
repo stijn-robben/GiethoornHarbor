@@ -57,7 +57,7 @@ public class PaymentRequestedEventProjector : BackgroundService
             }
 
             // Wait before checking for new events again
-            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
         }
     }
 }
