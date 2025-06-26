@@ -27,6 +27,16 @@ namespace Billing.Controllers
             return Ok(new { message = "PaymentRequested event stored." });
         }
 
+        [HttpPost("pay")]
+        public IActionResult MakePayment([FromBody] MakePaymentCommand command)
+        {
+            var handler = new MakePaymentCommandHandler(_context);
+            var success = handler.Handle(command);
+            if (!success)
+                return BadRequest("Unknown shipping company.");
+            return Ok(new { message = "PaymentMade event stored." });
+        }
+
         [HttpGet("invoices")]
         public ActionResult<IEnumerable<CompanyInvoiceTotal>> GetAllInvoices()
         {
