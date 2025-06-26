@@ -11,7 +11,6 @@ builder.Services.AddDbContext<BillingContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddHostedService<RabbitMqSubscriberService>();
-builder.Services.AddHostedService<PaymentRequestedEventProjector>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

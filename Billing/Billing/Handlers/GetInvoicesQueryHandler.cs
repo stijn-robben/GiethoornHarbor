@@ -1,7 +1,8 @@
 using Billing.Data;
-using Billing.Models;
+using Billing.Events;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 namespace Billing.Handlers
 {
@@ -14,9 +15,32 @@ namespace Billing.Handlers
             _context = context;
         }
 
-        public IEnumerable<Invoice> Handle()
+        public IEnumerable<CompanyInvoiceTotal> Handle()
         {
-            return _context.Invoices.ToList();
+            var events = _context.StoredEvents
+                .Where(e => e.EventType == nameof(PaymentRequestedEvent))
+                .ToList();
+
+            var paymentEvents = events
+                .Select(e => JsonSerializer.Deserialize<PaymentRequestedEvent>(e.Data))
+                .Where(e => e != null);
+
+            var totals = paymentEvents
+                .GroupBy(e => e.ShippingCompanyName)
+                .Select(g => new CompanyInvoiceTotal
+                {
+                    ShippingCompanyName = g.Key,
+                    TotalAmount = g.Sum(e => e.Amount)
+                })
+                .ToList();
+
+            return totals;
         }
+    }
+
+    public class CompanyInvoiceTotal
+    {
+        public string ShippingCompanyName { get; set; }
+        public decimal TotalAmount { get; set; }
     }
 }

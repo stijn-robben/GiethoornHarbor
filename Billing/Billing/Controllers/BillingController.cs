@@ -4,6 +4,7 @@ using Billing.Events;
 using Billing.Handlers;
 using Billing.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace Billing.Controllers
 {
@@ -27,11 +28,11 @@ namespace Billing.Controllers
         }
 
         [HttpGet("invoices")]
-        public ActionResult<IEnumerable<Invoice>> GetAllInvoices()
+        public ActionResult<IEnumerable<CompanyInvoiceTotal>> GetAllInvoices()
         {
             var handler = new GetInvoicesQueryHandler(_context);
-            var invoices = handler.Handle();
-            return Ok(invoices);
+            var totals = handler.Handle();
+            return Ok(totals);
         }
 
         [HttpGet("companies")]
