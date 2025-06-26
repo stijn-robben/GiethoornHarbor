@@ -65,6 +65,8 @@ namespace HarborManagementService.Controllers
                 ShipId = ship.Id,
                 Name = ship.Name,
                 ArrivalTime = ship.ArrivalTime,
+                Company = ship.CompanyName,
+                NeedsService = ship.NeedsService,
                 status = ship.Status
             });
 
