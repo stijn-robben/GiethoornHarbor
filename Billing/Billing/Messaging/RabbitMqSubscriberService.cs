@@ -38,13 +38,21 @@ public class RabbitMqSubscriberService : BackgroundService
         }
         _connection = factory.CreateConnection();
         _channel = _connection.CreateModel();
+
+        // Listen to dock-events
         _channel.ExchangeDeclare("dock-events", ExchangeType.Fanout);
         _channel.QueueDeclare("billing-queue", durable: false, exclusive: false, autoDelete: false, arguments: null);
         _channel.QueueBind("billing-queue", "dock-events", "");
+
+        // Listen to shipservice-events
+        _channel.ExchangeDeclare("shipservice-events", ExchangeType.Fanout);
+        _channel.QueueDeclare("billing-shipservice-queue", durable: false, exclusive: false, autoDelete: false, arguments: null);
+        _channel.QueueBind("billing-shipservice-queue", "shipservice-events", "");
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        // Existing consumer for dock-events
         var consumer = new EventingBasicConsumer(_channel);
         consumer.Received += (model, ea) =>
         {
@@ -74,7 +82,7 @@ public class RabbitMqSubscriberService : BackgroundService
                         Amount = amount,
                         RequestedAt = requestedAt
                     });
-                }
+                } 
                 else if (eventType == "ShipmentCompanyCreated")
                 {
                     Console.WriteLine($"Received ShipmentCompanyCreated event: {message}");
@@ -96,8 +104,42 @@ public class RabbitMqSubscriberService : BackgroundService
                 }
             }
         };
-
         _channel.BasicConsume("billing-queue", autoAck: true, consumer: consumer);
+
+        // New consumer for shipservice-events
+        var shipServiceConsumer = new EventingBasicConsumer(_channel);
+        shipServiceConsumer.Received += (model, ea) =>
+        {
+            var body = ea.Body.ToArray();
+            var message = Encoding.UTF8.GetString(body);
+
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<BillingContext>();
+
+                using var doc = JsonDocument.Parse(message);
+                var root = doc.RootElement;
+                var eventType = root.GetProperty("EventType").GetString();
+
+                if (eventType == "ShipServiceInvoice")
+                {
+                    Console.WriteLine($"Received ShipServiceInvoice event: {message}");
+                    var companyName = root.GetProperty("ShipmentCompany").GetString();
+                    var amount = root.GetProperty("Amount").GetDecimal();
+                    var generatedAt = root.GetProperty("GeneratedAt").GetDateTime();
+
+                    var handler = new RequestPaymentCommandHandler(context);
+                    handler.Handle(new RequestPaymentCommand
+                    {
+                        ShippingCompanyName = companyName,
+                        Amount = amount,
+                        RequestedAt = generatedAt
+                    });
+                }
+            }
+        };
+        _channel.BasicConsume("billing-shipservice-queue", autoAck: true, consumer: shipServiceConsumer);
+
         return Task.CompletedTask;
     }
 
