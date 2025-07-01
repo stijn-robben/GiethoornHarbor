@@ -1,9 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WaterManagement.Data;
 using WaterManagement.Dto;
-using WaterManagement.Handlers;
-using WaterManagement.Models;
 using WaterManagement.Services;
 
 namespace WaterManagement.Controllers
@@ -21,25 +17,26 @@ namespace WaterManagement.Controllers
 
         // GET: api/waterquality/current
         [HttpGet("current")]
-        public async Task<ActionResult<CurrentWaterQualityDto>> GetCurrent()
+        public async Task<ActionResult<CurrentWaterQualityDto>> GetCurrentAsync()
         {
             var current = await _waterQualityService.GetCurrentWaterQualityDtoAsync();
             return Ok(current);
         }
 
-        // GET: api/waterquality/history (optioneel voor frontend)
-        [HttpGet("history")]
-        public async Task<ActionResult<List<WaterQuality>>> GetHistory([FromQuery] int hours = 24)
+        // POST: api/waterquality/simulate-ship-arrived
+        [HttpPost("simulate-ship-arrived")]
+        public async Task<IActionResult> SimulateShipArrivedAsync()
         {
-            var since = DateTime.UtcNow.AddHours(-hours);
+            await _waterQualityService.HandleShipArrivedAsync();
+            return Ok("Ship arrival simulated - water quality should decrease");
+        }
 
-            using var context = new WaterQualityDbContext(new DbContextOptionsBuilder<WaterQualityDbContext>().Options);
-            var history = await context.WaterQualities
-                .Where(w => w.Timestamp >= since)
-                .OrderByDescending(w => w.Timestamp)
-                .ToListAsync();
-
-            return Ok(history);
+        // POST: api/waterquality/simulate-ship-departed
+        [HttpPost("simulate-ship-departed")]
+        public async Task<IActionResult> SimulateShipDepartedAsync()
+        {
+            await _waterQualityService.HandleShipDepartedAsync();
+            return Ok("Ship departure simulated - water quality should improve");
         }
     }
 }

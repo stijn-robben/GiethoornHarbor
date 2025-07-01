@@ -8,9 +8,9 @@ namespace WaterManagement.Services
     public class WaterQualityService
     {
         private readonly WaterQualityDbContext _context;
-        private const int BASE_QUALITY = 80; // Basis kwaliteit zonder schepen
-        private const int QUALITY_IMPACT_PER_SHIP = 5; // Hoeveel slechter per schip
-        private int _currentShipCount = 0; // Houdt bij hoeveel schepen er zijn
+        private const int BASE_QUALITY = 80;
+        private const int QUALITY_IMPACT_PER_SHIP = 5;
+        private int _currentShipCount = 0;
 
         public WaterQualityService(WaterQualityDbContext context)
         {
@@ -28,12 +28,15 @@ namespace WaterManagement.Services
         {
             _currentShipCount++;
             await UpdateWaterQualityAsync();
+            Console.WriteLine($"Water quality updated after ship arrival");
         }
 
         public async Task HandleShipDepartedAsync()
         {
-            _currentShipCount = Math.Max(0, _currentShipCount - 1);
+            if (_currentShipCount > 0)
+                _currentShipCount--;
             await UpdateWaterQualityAsync();
+            Console.WriteLine($"Water quality updated after ship departure");
         }
 
         private async Task UpdateWaterQualityAsync()
@@ -50,12 +53,14 @@ namespace WaterManagement.Services
 
             _context.WaterQualities.Add(waterQuality);
             await _context.SaveChangesAsync();
+            Console.WriteLine($"New water quality record saved to database");
         }
 
         private int CalculateQualityScore(int shipsInHarbor)
         {
             var score = BASE_QUALITY - (shipsInHarbor * QUALITY_IMPACT_PER_SHIP);
-            return Math.Max(0, Math.Min(100, score));
+            Console.WriteLine($"Quality calculation Score");
+            return Math.Clamp(score, 0, 100);
         }
 
         private WaterQualityLevel GetQualityLevel(int score)
@@ -89,13 +94,12 @@ namespace WaterManagement.Services
 
             if (current == null)
             {
-                // Default waarde als er nog geen metingen zijn
                 return new CurrentWaterQualityDto
                 {
                     LastUpdated = DateTime.UtcNow,
                     QualityScore = BASE_QUALITY,
                     Level = WaterQualityLevel.Excellent,
-                    Status = "Uitstekend"
+                    Status = GetStatusText(WaterQualityLevel.Excellent)
                 };
             }
 
