@@ -193,8 +193,8 @@ namespace Dock_ShipmentCompany.Services
             var parts = fullAddress.Split(',');
             if (parts.Length >= 2)
             {
-                var addressPart = parts[0].Trim();
-                var cityPart = parts[1].Trim();
+                var addressPart = parts[0].Trim().Trim('"');
+                var cityPart = parts[1].Trim().Trim('"');
                 var cityWords = cityPart.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 var city = cityWords.Length > 1 ? string.Join(" ", cityWords.Skip(1)) : cityPart;
                 return (addressPart, city);
