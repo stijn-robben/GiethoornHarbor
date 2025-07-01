@@ -116,6 +116,11 @@ namespace Dock_ShipmentCompany.Services
                     continue;
                 }
 
+                // Check for and generate missing invoices from previous months
+                var missingInvoices = await GenerateMissingInvoicesForDock(context, dock, invoiceMonth, publisher);
+                invoicesGenerated += missingInvoices;
+
+                // Generate current month invoice
                 var invoice = await CreateOrGetInvoice(context, dock, invoiceMonth, invoiceEnd, invoiceKey);
                 if (invoice != null)
                 {
@@ -127,6 +132,52 @@ namespace Dock_ShipmentCompany.Services
             }
 
             _logger.LogInformation($"Completed invoice generation for {invoiceKey}. Generated: {invoicesGenerated} invoices");
+        }
+
+        private async Task<int> GenerateMissingInvoicesForDock(PortDbContext context, Dock dock, DateTime currentInvoiceMonth, EventPublisher publisher)
+        {
+            if (!dock.RentalStart.HasValue) return 0;
+
+            var rentalStartMonth = new DateTime(dock.RentalStart.Value.Year, dock.RentalStart.Value.Month, 1);
+            var monthToCheck = rentalStartMonth;
+            var missingInvoicesGenerated = 0;
+
+            while (monthToCheck < currentInvoiceMonth)
+            {
+                var monthKey = $"{monthToCheck.Year:0000}-{monthToCheck.Month:00}";
+                var existingInvoice = await context.Invoices
+                    .FirstOrDefaultAsync(i => i.DockId == dock.Id && i.InvoiceMonth == monthKey);
+
+                if (existingInvoice == null)
+                {
+                    var monthEnd = monthToCheck.AddMonths(1).AddDays(-1);
+
+                    // Check if the dock was actually rented during this month
+                    var wasRentedThisMonth = dock.RentalStart <= monthEnd &&
+                                           (dock.RentalEnd == null || dock.RentalEnd >= monthToCheck);
+
+                    if (wasRentedThisMonth)
+                    {
+                        var missingInvoice = await CreateOrGetInvoice(context, dock, monthToCheck, monthEnd, monthKey);
+                        if (missingInvoice != null)
+                        {
+                            await PublishInvoiceEvent(publisher, dock, missingInvoice);
+                            missingInvoicesGenerated++;
+                            _logger.LogInformation($"Generated missing invoice for {dock.ShipmentCompany!.CompanyName} - Dock {dock.Name} for {monthKey}: ${missingInvoice.Amount:F2}");
+                        }
+                    }
+                }
+                else if (_isTestMode)
+                {
+                    // In test mode, republish existing invoices
+                    await PublishInvoiceEvent(publisher, dock, existingInvoice);
+                    missingInvoicesGenerated++;
+                }
+
+                monthToCheck = monthToCheck.AddMonths(1);
+            }
+
+            return missingInvoicesGenerated;
         }
 
         private async Task<List<Dock>> GetRentedDocksForMonth(PortDbContext context, DateTime monthStart, DateTime monthEnd)
