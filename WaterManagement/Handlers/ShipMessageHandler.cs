@@ -2,11 +2,6 @@
 using RabbitMQ.Client.Events;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
 using WaterManagement.Services;
 
 namespace WaterManagement.Handlers
