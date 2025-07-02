@@ -1,5 +1,6 @@
 using Billing.Data;
 using Billing.Events;
+using Billing.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -64,11 +65,5 @@ namespace Billing.Handlers
 
             return result;
         }
-    }
-
-    public class CompanyInvoiceTotal
-    {
-        public string ShippingCompanyName { get; set; }
-        public decimal TotalAmount { get; set; }
     }
 }
