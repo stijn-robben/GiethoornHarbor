@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Connections;
-using Microsoft.Extensions.Hosting;
-using RabbitMQ.Client;
+﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using ShipService.Services;
 using System.Text;
@@ -31,10 +29,10 @@ public class RabbitMqSubscriberService : BackgroundService
             {
                 retries++;
                 if (retries >= 10)
-                    throw new Exception("Kon geen verbinding maken met RabbitMQ", ex);
+                    throw new Exception("Failed to connect to RabbitMQ after 10 attempts", ex);
 
-                Console.WriteLine($"[RabbitMQ] Verbinden mislukt. Opnieuw proberen ({retries}/10)...");
-                Thread.Sleep(3000); // 3 seconden wachten
+                Console.WriteLine($"[RabbitMQ] Connection failed. Retrying ({retries}/10)...");
+                Thread.Sleep(3000);
             }
         }
         _channel.ExchangeDeclare("harbor-events", ExchangeType.Fanout);
@@ -51,44 +49,48 @@ public class RabbitMqSubscriberService : BackgroundService
             var body = ea.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
 
-            Console.WriteLine("[RabbitMQ] Event ontvangen:");
+            Console.WriteLine("[RabbitMQ] Event received:");
             Console.WriteLine(message);
 
             try
             {
                 using var scope = _serviceProvider.CreateScope();
-                var executeShipService = scope.ServiceProvider.GetRequiredService<ExecuteShipService>();
+                var executeShipService = scope.ServiceProvider.GetRequiredService<ShipServiceManager>();
 
                 using var doc = JsonDocument.Parse(message);
                 var root = doc.RootElement;
 
                 var eventType = root.GetProperty("EventType").GetString();
-                Console.WriteLine($"EventType: {eventType}");
+                Console.WriteLine($"[RabbitMQ] EventType: {eventType}");
 
                 if (eventType == "ShipArrived")
                 {
+                    var shipId = root.GetProperty("ShipId").GetInt32();
                     var company = root.GetProperty("Company").GetString();
                     var needsService = root.GetProperty("NeedsService").GetBoolean();
 
-                    Console.WriteLine($"ShipArrived ontvangen van bedrijf: {company}, needsService: {needsService}");
+                    Console.WriteLine($"[RabbitMQ] ShipArrived event received: ShipId={shipId}, Company={company}, NeedsService={needsService}");
 
-                    executeShipService.Execute(company!, needsService);
-                    Console.WriteLine("ExecuteShipService succesvol uitgevoerd");
+                    if (needsService)
+                    {
+                        executeShipService.Execute(shipId, company);
+                        Console.WriteLine("[RabbitMQ] ExecuteShipService executed successfully.");
+                    }
                 }
                 else
                 {
-                    Console.WriteLine($"Onbekend eventtype: {eventType}");
+                    Console.WriteLine($"[RabbitMQ] Unknown event type: {eventType}");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Fout bij verwerken event: {ex.Message}");
+                Console.WriteLine($"[RabbitMQ] Error processing event: {ex}");
             }
         };
 
         _channel.BasicConsume("shipservice-queue", autoAck: true, consumer: consumer);
 
-        Console.WriteLine("[RabbitMQ] Wachten op berichten op 'shipservice-queue'...");
+        Console.WriteLine("[RabbitMQ] Waiting for messages on 'shipservice-queue'...");
 
         return Task.CompletedTask;
     }

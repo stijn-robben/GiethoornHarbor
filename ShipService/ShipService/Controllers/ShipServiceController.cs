@@ -1,99 +1,71 @@
-//using ShipServiceService.Data;
-//using ShipService.Messaging;
-//using ShipService.Models;
-//using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ShipService.Data;
+using ShipService.Models;
+using ShipService.Services;
 
-//namespace ShipService.Controllers
-//{
-//    [ApiController]
-//    [Route("api/[controller]")]
-//    public class ShipController : ControllerBase
-//    {
-//        private readonly ShipContext _context;
+namespace ShipService.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ShipServiceController : ControllerBase
+    {
+        private readonly ShipServiceContext _context;
+        private readonly ShipServiceManager _shipServiceManager;
 
-//        public ShipController(ShipContext context)
-//        {
-//            _context = context;
-//        }
+        public ShipServiceController(ShipServiceContext context, ShipServiceManager shipServiceManager)
+        {
+            _context = context;
+            _shipServiceManager = shipServiceManager;
+        }
 
-//        [HttpGet]
-//        public ActionResult<ApiResponse<IEnumerable<Ship>>> GetAll()
-//        {
-//            var ships = _context.Ships.ToList();
-//            return Ok(new ApiResponse<IEnumerable<Ship>>("Ships retrieved", 200, ships));
-//        }
+        // GET: api/shipservice
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Models.ShipService>>> GetServices()
+        {
+            return Ok(await _context.ShipServices
+                .Include(s => s.Containers)
+                .ToListAsync());
+        }
 
-//        [HttpPost]
-//        public ActionResult<ApiResponse<Ship>> Create(Ship ship)
-//        {
-//            ship.Status = "Planned";
-//            _context.Ships.Add(ship);
-//            _context.SaveChanges();
+        // GET: api/shipservice/containers
+        [HttpGet("containers")]
+        public async Task<ActionResult<IEnumerable<Container>>> GetAllContainers()
+        {
+            return Ok(await _context.Containers.ToListAsync());
+        }
 
-//            var publisher = new EventPublisher();
-//            publisher.Publish(new
-//            {
-//                EventType = "ShipPlanned",
-//                ShipId = ship.Id,
-//                Name = ship.Name,
-//                Company = ship.CompanyName,
-//                ArrivalTime = ship.ArrivalTime,
-//                DepartureTime = ship.DepartureTime,
-//                NeedsService = ship.NeedsService,
-//                Status = ship.Status
-//            });
+        // GET: api/shipservice/{id}
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Models.ShipService>> GetShipServiceById(int id)
+        {
+            var shipService = await _context.ShipServices
+                .Include(s => s.Containers)
+                .FirstOrDefaultAsync(s => s.Id == id);
 
-//            return CreatedAtAction(nameof(GetAll), new { id = ship.Id },
-//                new ApiResponse<Ship>("Ship created", 201, ship));
-//        }
+            if (shipService == null)
+                return NotFound();
 
-//        [HttpPost("arrive/{id}")]
-//        public IActionResult MarkShipAsArrived(int id)
-//        {
-//            var ship = _context.Ships.Find(id);
-//            if (ship == null)
-//                return NotFound(new ApiResponse<string>("Ship not found", 404));
+            return Ok(shipService);
+        }
 
-//            ship.ArrivalTime = DateTime.UtcNow;
-//            ship.Status = "Arrived";
-//            _context.SaveChanges();
+        // POST: api/shipservice/execute
+        [HttpPost("execute")]
+        public IActionResult Execute()
+        {
+            int testShipId = 1;
+            string testCompany = "TestCompany";
 
-//            var publisher = new EventPublisher();
-//            publisher.Publish(new
-//            {
-//                EventType = "ShipArrived",
-//                ShipId = ship.Id,
-//                Name = ship.Name,
-//                ArrivalTime = ship.ArrivalTime,
-//                status = ship.Status
-//            });
+            _shipServiceManager.Execute(testShipId, testCompany);
+            return Ok(new { message = $"Ship service execution triggered for ShipId={testShipId}, Company={testCompany}." });
+        }
 
-//            return Ok(new ApiResponse<Ship>("Ship marked as arrived", 200, ship));
-//        }
-
-//        [HttpPost("depart/{id}")]
-//        public IActionResult MarkShipAsDeparted(int id)
-//        {
-//            var ship = _context.Ships.Find(id);
-//            if (ship == null)
-//                return NotFound(new ApiResponse<string>("Ship not found", 404));
-
-//            ship.DepartureTime = DateTime.UtcNow;
-//            ship.Status = "Departed";
-//            _context.SaveChanges();
-
-//            var publisher = new EventPublisher();
-//            publisher.Publish(new
-//            {
-//                EventType = "ShipDeparted",
-//                ShipId = ship.Id,
-//                Name = ship.Name,
-//                DepartureTime = ship.DepartureTime,
-//                status = ship.Status
-//            });
-
-//            return Ok(new ApiResponse<Ship>("Ship marked as departed", 200, ship));
-//        }
-//    }
-
-//}
+        // POST: api/shipservice/calltruck
+        [HttpPost("calltruck")]
+        public IActionResult CallTruck()
+        {
+            Console.WriteLine("[ShipServiceController] Truck has been called for container pickup.");
+            return Ok(new { message = "Truck has been called for container pickup." });
+        }
+    }
+}

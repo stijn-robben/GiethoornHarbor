@@ -1,8 +1,13 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using ShipService.Models;
 
-public class Class1
+namespace ShipService.Data
 {
-	public Class1()
-	{
-	}
+    public class ShipServiceContext : DbContext
+    {
+        public ShipServiceContext(DbContextOptions<ShipServiceContext> options) : base(options) { }
+
+        public DbSet<Models.ShipService> ShipServices { get; set; }
+        public DbSet<Container> Containers { get; set; }
+    }
 }
