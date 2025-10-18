@@ -17,7 +17,7 @@
 
   ---
 
-  **This application was developed by Computer Science students at Avans University of Applied Sciences, as part of the course Enterprise Application Development.**
+  **This application was developed by Computer Science students at Avans University of Applied Sciences, as part of the course Solution Architecture.**
 
 </div>
 
